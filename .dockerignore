@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.vscode
+logs
+Makefile
+README.md
+.git
+db/
+docker-entrypoint.sh
+.dockerignore
+.env
+Dockerfile
+.gitignore
