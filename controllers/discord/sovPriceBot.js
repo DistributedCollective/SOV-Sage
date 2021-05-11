@@ -30,20 +30,18 @@ class DiscordPriceBotCtrl {
 
     bot.on('message', async (message) => {
       if (message.content === '$sov') {
-        
         let price = priceData.price * 100000000; // Convert to sats
-        let time = moment.tz(priceData.lastUpdated, "UTC");
+        let time = moment.tz(priceData.lastUpdated, 'UTC');
 
         const exampleEmbed = new Discord.MessageEmbed()
-        .setColor('#0099ff')
-        .setTitle('SOV Price')
-        .setURL('https://live.sovryn.app/')
-        .addField('Sats:', `${price}`)
-        .addField('Updated at:', `${time.format()} UTC`);
+          .setColor('#0099ff')
+          .setTitle('SOV Price')
+          .setURL('https://live.sovryn.app/')
+          .addField('Sats:', `${price}`)
+          .addField('Updated at:', `${time.format()} UTC`);
 
-		const msg = await message.channel.send(exampleEmbed);
+        await message.channel.send(exampleEmbed);
 
-        // message.channel.send(exampleEmbed);
       }
     });
 
@@ -73,6 +71,6 @@ export default new DiscordPriceBotCtrl();
 
 async function fetchCurrentPrice() {
   let url = 'https://backend.sovryn.app/sov/current-price';
-    const response = await axios.get(url);
-    return response.data
+  const response = await axios.get(url);
+  return response.data;
 }
