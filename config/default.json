@@ -1,0 +1,9 @@
+{
+    "urls": {
+        "sovrynApp": "https://live.sovryn.app",
+        "sovCurrentPrice": "https://backend.sovryn.app/sov/current-price",
+        "liquidityMining": "https://backend.sovryn.app/amm/liquidity-mining/",
+        "sovrynWikiGraphqlUrl": "https://wiki.sovryn.app/graphql",
+        "sovrynWiki": "https://wiki.sovryn.app/"
+    }
+}

@@ -2,17 +2,20 @@
   "name": "sov-sage",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha",
-    "start": "node -r esm index.js",
-    "dev": "nodemon -r esm index.js"
+    "start": "node -r esm server.js",
+    "dev": "nodemon -r esm server.js",
+    "eslint": "eslint Gruntfile.js src",
+    "prettier-check": "prettier --check Gruntfile.js src",
+    "prettier-fmt": "prettier --write Gruntfile.js src"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
-    "convict": "^6.1.0",
+    "config": "^3.3.6",
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.0",
     "esm": "^3.2.25",
@@ -21,6 +24,10 @@
   },
   "devDependencies": {
     "eslint": "^7.26.0",
-    "nodemon": "^2.0.7"
+    "grunt": "^1.4.0",
+    "grunt-exec": "^3.0.0",
+    "load-grunt-tasks": "^5.1.0",
+    "nodemon": "^2.0.7",
+    "prettier": "^2.3.0"
   }
 }
