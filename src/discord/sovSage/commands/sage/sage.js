@@ -1,59 +1,60 @@
 // json from file, puppeteer screenshots: https://dev.to/sagar/how-to-capture-screenshots-with-puppeteer-3mb2
 // const puppeteer = require('puppeteer');      // Require Puppeteer module
 const Discord = require('discord.js');
+const config = require('config');
 
 import axios from 'axios';
 
 module.exports = {
-  name: 's',
-  description: 'mage related actions',
-  args: true,
-  usage: '<name>',
-  dmOnly: true,
-  cooldown: 5,
-  async execute(message, args) {
-    const subCommand = args.shift();
+    name: 's',
+    description: 'mage related actions',
+    args: true,
+    usage: '<name>',
+    dmOnly: true,
+    cooldown: 5,
+    async execute(message, args) {
+        const subCommand = args.shift();
 
-    switch (subCommand) {
-      case 'lpstat':
-        usdtBtcSovMining(message, args);
-        break;
-      case 'sovloot':
+        switch (subCommand) {
+        case 'lpstat':
+            usdtBtcSovMining(message, args);
+            break;
+        case 'sovloot':
         // puppetFetch(message, args);
-        break;
-      default:
-        message.channel.send(`Arguments: ${args}\nArguments length: ${args.length}`);
-        break;
-    }
-    return;
-  },
+            break;
+        default:
+            message.channel.send(`Arguments: ${args}\nArguments length: ${args.length}`);
+            break;
+        }
+        return;
+    },
 };
 
 // TODO: the asset names in the addFields below are hardcoded,
 // they need to be updated to correlate correctly
-let usdtBtcSovMining = async (message, args) => {
-  if (args.length < 1) {
-    return await message.reply('you need to send an address too');
-  }
-  const walletAddress = args[0];
-  const response = await axios.get(`${config.urls.liquidityMining}${walletAddress}`);
-  console.log(response.data);
-  const exampleEmbed = new Discord.MessageEmbed()
-    .setColor('#0099ff')
-    .setTitle('Liquidity Mining: USDT/BTC Pool')
-    .addFields(
-      {
-        name: 'Asset: USDT',
-        value: `Your Current Share Of Reward Pool*: ${response.data[0].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[0].sovReward}`,
-        inline: true,
-      },
-      {
-        name: 'Asset: BTC',
-        value: `Your Current Share Of Reward Pool*: ${response.data[1].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[1].sovReward}`,
-        inline: true,
-      },
-    );
-  await message.channel.send(exampleEmbed);
+const usdtBtcSovMining = async (message, args) => {
+    if (args.length < 1) {
+        return await message.reply('you need to send an address too');
+    }
+    const walletAddress = args[0];
+    const response = await axios.get(`${config.urls.liquidityMining}${walletAddress}`);
+    console.log(response.data);
+    const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('Liquidity Mining: USDT/BTC Pool')
+        .addFields(
+            {
+                name: 'Asset: USDT',
+                value: `Your Current Share Of Reward Pool*: ${response.data[0].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[0].sovReward}`,
+                inline: true,
+            },
+            {
+                name: 'Asset: BTC',
+                value: `Your Current Share Of Reward Pool*: ${response.data[1].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[1].sovReward}`,
+                inline: true,
+            },
+        );
+    await message.channel.send(exampleEmbed);
 };
 
 // let puppetFetch = async (message, args) => {
