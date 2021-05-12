@@ -1,85 +1,84 @@
 import axios from 'axios';
 const Discord = require('discord.js');
-const config = require('config');
-
-const WIKI_API_KEY = process.env.WIKI_API_KEY;
+const config = require('config'),
+  WIKI_API_KEY = process.env.WIKI_API_KEY;
 
 module.exports = {
-    name: 'w',
-    description: 'Searches wiki.sovryn.app and returns first result',
-    args: false,
-    usage: '<arg>',
-    // guildOnly: true,
-    cooldown: 1,
-    async execute(message, args) {
-        if (message.channel.type === 'text') {
-            await message.delete();
-        }
+  name: 'w',
+  description: 'Searches wiki.sovryn.app and returns first result',
+  args: false,
+  usage: '<arg>',
+  // guildOnly: true,
+  cooldown: 1,
+  async execute(message, args) {
+    if (message.channel.type === 'text') {
+      await message.delete();
+    }
 
-        const searchQuery = args[0];
+    let locale;
+    if (args.length > 1) {
+      locale = args[1];
+    } else {
+      locale = 'en';
+    }
 
-        let locale;
-        if (args.length > 1) {
-            locale = args[1];
-        }
-        else {
-            locale = 'en';
-        }
+    // searchByQuery or fetchToc
+    const searchQuery = args[0],
+      res = await searchByQuery(searchQuery, locale),
+      exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('SOVRYN Wiki')
+        .setURL(config.urls.sovrynWiki);
 
-        // searchByQuery or fetchToc
-        const res = await searchByQuery(searchQuery, locale);
+    // let description = "";
+    // res.forEach(element => {
+    // 	console.log(element['title']);
+    // 	description += `[${element['title']}](https://wiki.sovryn.app/${element['path']}\n`;
+    // });
+    // exampleEmbed.setDescription(description);
 
-        // console.log(returnedResults.data.pages.search);
+    if (res.length > 0) {
+      res.forEach((element) => {
+        // console.log(element['title']);
+        exampleEmbed.addField(
+          element['title'],
+          `https://wiki.sovryn.app/${element['locale']}/${element['path']}`
+        );
+      });
+    } else {
+      exampleEmbed.setDescription(
+        'No results, try another term and remember to "quote phrases"'
+      );
+    }
 
-        const exampleEmbed = new Discord.MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle('SOVRYN Wiki')
-            .setURL(config.urls.sovrynWiki);
+    // {
+    // 	id: '3',
+    // 	title: 'FAQ General',
+    // 	description: 'General Frequently Asked Questions ',
+    // 	path: 'getting-started/faq-general',
+    // 	locale: 'en'
+    // }
 
-        // let description = "";
-        // res.forEach(element => {
-        // 	console.log(element['title']);
-        // 	description += `[${element['title']}](https://wiki.sovryn.app/${element['path']}\n`;
-        // });
-        // exampleEmbed.setDescription(description);
-
-        if (res.length > 0) {
-            res.forEach((element) => {
-                // console.log(element['title']);
-                exampleEmbed.addField(
-                    element['title'],
-                    `https://wiki.sovryn.app/${element['locale']}/${element['path']}`,
-                );
-            });
-        }
-        else {
-            exampleEmbed.setDescription('No results, try another term and remember to "quote phrases"');
-        }
-
-        // {
-        // 	id: '3',
-        // 	title: 'FAQ General',
-        // 	description: 'General Frequently Asked Questions ',
-        // 	path: 'getting-started/faq-general',
-        // 	locale: 'en'
-        // }
-
-        await message.author.send(exampleEmbed);
-    },
+    await message.author.send(exampleEmbed);
+  },
 };
 
 // TODO refactor, i've used this function in another file as well
 async function axiosTest(graphqlQuery) {
-    const headers = {
-        Authorization: 'Bearer ' + WIKI_API_KEY,
-    };
-    const response = await axios.post(config.urls.sovrynWikiGraphqlUrl, graphqlQuery, headers);
-    return response.data;
+  const headers = {
+      Authorization: 'Bearer ' + WIKI_API_KEY,
+    },
+    response = await axios.post(
+      config.urls.sovrynWikiGraphqlUrl,
+      graphqlQuery,
+      headers
+    );
+  return response.data;
 }
 
 async function searchByQuery(searchTerm, locale) {
-    const graphqlQuery = {
-        query: `
+  const graphqlQuery = {
+      query: `
 		query {
 			pages {
 				search(query: "${searchTerm}", locale: "${locale}") {
@@ -94,9 +93,9 @@ async function searchByQuery(searchTerm, locale) {
 			}
 		}
 		`,
-    };
-    const res = await axiosTest(graphqlQuery);
-    return res.data.pages.search.results;
+    },
+    res = await axiosTest(graphqlQuery);
+  return res.data.pages.search.results;
 }
 
 // async function fetchToc(id) {
