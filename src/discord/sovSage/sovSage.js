@@ -1,3 +1,5 @@
+import { config } from 'dotenv';
+
 /**
  * SovSage bot
  * took heavy inspiration from: https://discordjs.guide/
@@ -11,7 +13,8 @@ const fs = require('fs'),
   pathToCommands = path.resolve(__dirname, './commands'),
   commandFolders = fs.readdirSync(pathToCommands),
   DISCORD_SOV_SAGE_BOT_TOKEN = process.env.DISCORD_SOV_SAGE_BOT_TOKEN,
-  // const DISCORD_SOV_PRICE_BOT_CHANNEL_ID = process.env.DISCORD_SOV_PRICE_BOT_CHANNEL_ID; // needs to be server channel
+  DISCORD_SOV_PRICE_BOT_CHANNEL_ID =
+    process.env.DISCORD_SOV_PRICE_BOT_CHANNEL_ID,
   PREFIX = process.env.DISCORD_SOV_SAGE_PREFIX || '!';
 
 bot.commands = new Discord.Collection();
@@ -38,15 +41,22 @@ class DiscordSovSage {
 
     bot.login(DISCORD_SOV_SAGE_BOT_TOKEN);
 
-    bot.on('message', (message) => {
+    bot.on('message', async (message) => {
       if (!message.content.startsWith(PREFIX) || message.author.bot) return;
+      if (message.channel.type == 'dm') {
+        const user = await bot.guilds.cache
+            .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
+            .members.fetch(message.author.id),
+          allowedToDm = user.roles.cache.some((r) =>
+            config.allowedRoles.includes(r.name.toLowerCase())
+          );
+        if (!allowedToDm) return;
+      }
       // Check if they have one of many roles, this will need to be opened up if we ever want the general populus to use SOV Sage
       try {
         if (
           !message.member.roles.cache.some((r) =>
-            ['admin', 'moderator', 'dev', 'contributor'].includes(
-              r.name.toLowerCase()
-            )
+            config.allowedRoles.includes(r.name.toLowerCase())
           )
         ) {
           return;

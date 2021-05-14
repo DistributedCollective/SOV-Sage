@@ -5,5 +5,6 @@
         "liquidityMining": "https://backend.sovryn.app/amm/liquidity-mining/",
         "sovrynWikiGraphqlUrl": "https://wiki.sovryn.app/graphql",
         "sovrynWiki": "https://wiki.sovryn.app/"
-    }
+    },
+    "allowedRoles": ["admin", "moderator", "dev", "contributor"]
 }
