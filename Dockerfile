@@ -7,14 +7,15 @@ WORKDIR /app
 # Add our package.json and install *before* adding our application files
 COPY ["package.json", "package-lock.json*", "./"]
 
+RUN npm install pm2 -g
 RUN npm install --production
 
 # Now add application files
 COPY . /app
 
 # Expose the port
-EXPOSE 3000
+#EXPOSE 3000
 
 # ENTRYPOINT ["bash", "docker-entrypoint.sh"]
 
-CMD ["sh", "-c", "npm run start"]
+CMD ["sh", "-c", "pm2-runtime --node-args=\"-r esm\" server.js"]

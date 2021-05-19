@@ -1,4 +1,5 @@
 {
+    "prefix": "!",
     "urls": {
         "sovrynApp": "https://live.sovryn.app",
         "sovCurrentPrice": "https://backend.sovryn.app/sov/current-price",

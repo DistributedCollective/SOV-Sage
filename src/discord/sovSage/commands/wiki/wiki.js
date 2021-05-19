@@ -4,10 +4,11 @@ const config = require('config'),
   WIKI_API_KEY = process.env.WIKI_API_KEY;
 
 module.exports = {
-  name: 'w',
+  name: 'wiki',
   description: 'Searches wiki.sovryn.app and returns first result',
   args: false,
-  usage: '<arg>',
+  usage: '<search term> [locale]',
+  aliases: ['w'],
   // guildOnly: true,
   cooldown: 1,
   async execute(message, args) {

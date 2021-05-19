@@ -1,0 +1,42 @@
+# For running in KIND. I used the make tar command to package the 
+# docker image to a tar file. Then make load command to load the 
+# image into the k8s KIND cluster... The make configMap is how I
+# created a configMap from the .env file, which are loaded into the
+# env you can see below.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sov-sage
+spec:
+  containers:
+    - name: sov-sage
+      image: sov-sage:v1.0.0
+      imagePullPolicy: Never
+      env:
+        - name: DISCORD_SOV_SAGE_BOT_TOKEN
+          valueFrom:
+            configMapKeyRef:
+              name: sov-sage-config
+              key: DISCORD_SOV_SAGE_BOT_TOKEN
+        - name: DISCORD_STATS_CHANNEL
+          valueFrom:
+            configMapKeyRef:
+              name: sov-sage-config
+              key: DISCORD_STATS_CHANNEL
+        - name: WIKI_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: sov-sage-config
+              key: WIKI_API_KEY
+        - name: DISCORD_SOV_PRICE_BOT_TOKEN
+          valueFrom:
+            configMapKeyRef:
+              name: sov-sage-config
+              key: DISCORD_SOV_PRICE_BOT_TOKEN
+        - name: DISCORD_SOV_PRICE_BOT_CHANNEL_ID
+          valueFrom:
+            configMapKeyRef:
+              name: sov-sage-config
+              key: DISCORD_SOV_PRICE_BOT_CHANNEL_ID
+  restartPolicy: Never
+

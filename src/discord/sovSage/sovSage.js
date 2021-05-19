@@ -1,5 +1,3 @@
-import { config } from 'dotenv';
-
 /**
  * SovSage bot
  * took heavy inspiration from: https://discordjs.guide/
@@ -15,7 +13,7 @@ const fs = require('fs'),
   DISCORD_SOV_SAGE_BOT_TOKEN = process.env.DISCORD_SOV_SAGE_BOT_TOKEN,
   DISCORD_SOV_PRICE_BOT_CHANNEL_ID =
     process.env.DISCORD_SOV_PRICE_BOT_CHANNEL_ID,
-  PREFIX = process.env.DISCORD_SOV_SAGE_PREFIX || '!';
+  config = require('config');
 
 bot.commands = new Discord.Collection();
 bot.cooldowns = new Discord.Collection();
@@ -42,7 +40,8 @@ class DiscordSovSage {
     bot.login(DISCORD_SOV_SAGE_BOT_TOKEN);
 
     bot.on('message', async (message) => {
-      if (!message.content.startsWith(PREFIX) || message.author.bot) return;
+      if (!message.content.startsWith(config.prefix) || message.author.bot)
+        return;
       if (message.channel.type == 'dm') {
         const user = await bot.guilds.cache
             .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
@@ -80,11 +79,13 @@ class DiscordSovSage {
 
       let commandName, command, timestamps, cooldownAmount;
 
-      commandName = args.shift().toLowerCase().slice(PREFIX.length);
+      commandName = args.shift().toLowerCase().slice(config.prefix.length);
 
-      if (!bot.commands.has(commandName)) return;
+      command =
+        bot.commands.get(commandName) ||
+        bot.commands.find((c) => c.aliases && c.aliases.includes(commandName));
 
-      command = bot.commands.get(commandName);
+      if (!command) return;
 
       if (command.guildOnly && message.channel.type === 'dm') {
         return message.reply("I can't execute that type of command in a dm!");
@@ -106,7 +107,7 @@ class DiscordSovSage {
         let reply = `${message.author}, You didn't provide any arguments!`;
 
         if (command.usage) {
-          reply += `\nThe proper usage would be: \`${PREFIX}${command.name} ${command.usage}\``;
+          reply += `\nThe proper usage would be: \`${config.prefix}${command.name} ${command.usage}\``;
         }
 
         return message.channel.send(reply);
