@@ -7,7 +7,7 @@ module.exports = {
   name: 'utils',
   description: 'collection of utilities',
   args: true,
-  usage: '<channels> || <count> || <checksum>',
+  usage: '<channels> OR <count> OR <checksum>',
   guildOnly: true,
   cooldown: 5,
   async execute(message, args) {

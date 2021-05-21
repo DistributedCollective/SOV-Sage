@@ -12,35 +12,31 @@ module.exports = {
   // guildOnly: true,
   cooldown: 1,
   async execute(message, args) {
-    if (message.channel.type === 'text') {
-      await message.delete();
-    }
+    // if (message.channel.type === 'text') {
+    //   await message.delete();
+    // }
 
-    let locale;
+    let locale, res;
+
     if (args.length > 1) {
       locale = args[1];
     } else {
       locale = 'en';
     }
 
-    // searchByQuery or fetchToc
+    // always default to trying a path search, then try search by query if no path results returned
     const searchQuery = args[0],
-      res = await searchByQuery(searchQuery, locale),
       exampleEmbed = new Discord.MessageEmbed()
         .setColor('#0099ff')
         .setTitle('SOVRYN Wiki')
         .setURL(config.urls.sovrynWiki);
 
-    // let description = "";
-    // res.forEach(element => {
-    // 	console.log(element['title']);
-    // 	description += `[${element['title']}](https://wiki.sovryn.app/${element['path']}\n`;
-    // });
-    // exampleEmbed.setDescription(description);
+    res = await searchByPath(searchQuery, locale);
+    if (!res.length) res = await searchByQuery(searchQuery, locale);
+    console.log(`locale: ${locale}`);
 
     if (res.length > 0) {
       res.forEach((element) => {
-        // console.log(element['title']);
         exampleEmbed.addField(
           element['title'],
           `https://wiki.sovryn.app/${element['locale']}/${element['path']}`
@@ -52,20 +48,12 @@ module.exports = {
       );
     }
 
-    // {
-    // 	id: '3',
-    // 	title: 'FAQ General',
-    // 	description: 'General Frequently Asked Questions ',
-    // 	path: 'getting-started/faq-general',
-    // 	locale: 'en'
-    // }
-
-    await message.author.send(exampleEmbed);
+    await message.channel.send(exampleEmbed);
+    // await message.author.send(exampleEmbed);
   },
 };
 
-// TODO refactor, i've used this function in another file as well
-async function axiosTest(graphqlQuery) {
+async function axiosWikiFetch(graphqlQuery) {
   const headers = {
       Authorization: 'Bearer ' + WIKI_API_KEY,
     },
@@ -95,7 +83,30 @@ async function searchByQuery(searchTerm, locale) {
 		}
 		`,
     },
-    res = await axiosTest(graphqlQuery);
+    res = await axiosWikiFetch(graphqlQuery);
+  return res.data.pages.search.results;
+}
+
+async function searchByPath(pathTerm, locale) {
+  const graphqlQuery = {
+      query: `
+        {
+            pages {
+              search(query:"",path:"${pathTerm}",locale:"${locale}") {
+                results {
+                  id
+                  title
+                  description
+                  path
+                  locale
+                }
+              }
+            }
+          }
+          
+        `,
+    },
+    res = await axiosWikiFetch(graphqlQuery);
   return res.data.pages.search.results;
 }
 

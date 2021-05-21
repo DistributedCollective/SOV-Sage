@@ -1,11 +1,13 @@
 {
     "prefix": "!",
     "urls": {
-        "sovrynApp": "https://live.sovryn.app",
-        "sovCurrentPrice": "https://backend.sovryn.app/sov/current-price",
-        "liquidityMining": "https://backend.sovryn.app/amm/liquidity-mining/",
+        "sovrynTicker":         "https://testnet.sovryn.app/backend/api/v1/trading-pairs/ticker",
+        "sovrynApp":            "https://live.sovryn.app",
+        "sovCurrentPrice":      "https://backend.sovryn.app/sov/current-price",
+        "liquidityMining":      "https://backend.sovryn.app/amm/liquidity-mining/",
+        "tvlUrl":               "https://backend.sovryn.app/tvl",
         "sovrynWikiGraphqlUrl": "https://wiki.sovryn.app/graphql",
-        "sovrynWiki": "https://wiki.sovryn.app/"
+        "sovrynWiki":           "https://wiki.sovryn.app/"
     },
     "allowedRoles": ["admin", "moderator", "dev", "contributor"]
 }

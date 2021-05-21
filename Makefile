@@ -12,3 +12,5 @@ pm2:
 	pm2-dev --node-args="-r esm" server.js
 configMap:
 	kubectl create configmap sov-sage-config --from-env-file=.env
+loadImage:
+	kind load image-archive sov-sage.tar --name app-1-cluster

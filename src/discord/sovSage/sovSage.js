@@ -40,25 +40,28 @@ class DiscordSovSage {
     bot.login(DISCORD_SOV_SAGE_BOT_TOKEN);
 
     bot.on('message', async (message) => {
-      if (!message.content.startsWith(config.prefix) || message.author.bot)
+      if (!message.content.startsWith(config.prefix) || message.author.bot) {
         return;
-      if (message.channel.type == 'dm') {
-        const user = await bot.guilds.cache
-            .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
-            .members.fetch(message.author.id),
-          allowedToDm = user.roles.cache.some((r) =>
-            config.allowedRoles.includes(r.name.toLowerCase())
-          );
-        if (!allowedToDm) return;
       }
+
       // Check if they have one of many roles, this will need to be opened up if we ever want the general populus to use SOV Sage
       try {
-        if (
-          !message.member.roles.cache.some((r) =>
-            config.allowedRoles.includes(r.name.toLowerCase())
-          )
-        ) {
-          return;
+        if (message.channel.type == 'dm') {
+          const user = await bot.guilds.cache
+              .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
+              .members.fetch(message.author.id),
+            allowedToDm = user.roles.cache.some((r) =>
+              config.allowedRoles.includes(r.name.toLowerCase())
+            );
+          if (!allowedToDm) return;
+        } else {
+          if (
+            !message.member.roles.cache.some((r) =>
+              config.allowedRoles.includes(r.name.toLowerCase())
+            )
+          ) {
+            return;
+          }
         }
       } catch (err) {
         console.log(err);

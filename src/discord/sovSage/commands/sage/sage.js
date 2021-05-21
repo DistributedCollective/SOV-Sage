@@ -6,11 +6,12 @@ const config = require('config');
 import axios from 'axios';
 
 module.exports = {
-  name: 's',
+  name: 'sage',
   description: 'mage related actions',
   args: true,
-  usage: '<name>',
-  dmOnly: true,
+  aliases: ['s'],
+  usage: '<lpstat> <wallet address>',
+  //   dmOnly: true,
   cooldown: 5,
   async execute(message, args) {
     const subCommand = args.shift();
@@ -19,7 +20,8 @@ module.exports = {
       case 'lpstat':
         usdtBtcSovMining(message, args);
         break;
-      case 'sovloot':
+      case 'lptoken':
+        sovBtcLpTokenWorth(message, args);
         // puppetFetch(message, args);
         break;
       default:
@@ -32,33 +34,49 @@ module.exports = {
   },
 };
 
-// TODO: the asset names in the addFields below are hardcoded,
-// they need to be updated to correlate correctly
-let usdtBtcSovMining = async (message, args) => {
-  if (args.length < 1) {
-    return await message.reply('you need to send an address too');
-  }
-  const walletAddress = args[0],
-    response = await axios.get(
-      `${config.urls.liquidityMining}${walletAddress}`
-    ),
-    exampleEmbed = new Discord.MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle('Liquidity Mining: USDT/BTC Pool')
-      .addFields(
-        {
-          name: 'Asset: USDT',
-          value: `Your Current Share Of Reward Pool*: ${response.data[0].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[0].sovReward}`,
-          inline: true,
-        },
-        {
-          name: 'Asset: BTC',
-          value: `Your Current Share Of Reward Pool*: ${response.data[1].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[1].sovReward}`,
-          inline: true,
-        }
-      );
-  await message.channel.send(exampleEmbed);
-};
+let sovBtcLpTokenWorth = async (message, args) => {
+    const tlvResponse = await axios.get(`${config.urls.tvlUrl}`),
+      sovTokenBal = tlvResponse.data.tvlAmm.SOV_SOV.balance,
+      btcTokenBal = tlvResponse.data.tvlAmm.SOV_SOV.balanceBtc,
+      sovPriceInfo = await axios.get(`${config.urls.sovCurrentPrice}`),
+      sovInSats = sovPriceInfo.data.price,
+      tickerResponse = await axios.get(`${config.urls.sovrynTicker}`),
+      btcPrice = tickerResponse.data.BTC_USDT.last_price,
+      sovPrice = btcPrice * sovInSats,
+      sovBtcAmmPoolWorth = sovPrice * sovTokenBal + btcPrice * btcTokenBal,
+      numberOfTokens = args[0],
+      lpTokenWorth = sovBtcAmmPoolWorth / numberOfTokens;
+    message.channel.send(
+      `Each SOV/BTC LP Token is worth about: \$${lpTokenWorth}`
+    );
+  },
+  // TODO: the asset names in the addFields below are hardcoded,
+  // they need to be updated to correlate correctly
+  usdtBtcSovMining = async (message, args) => {
+    if (args.length < 1) {
+      return await message.reply('you need to send an address too');
+    }
+    const walletAddress = args[0],
+      response = await axios.get(
+        `${config.urls.liquidityMining}${walletAddress}`
+      ),
+      exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('Liquidity Mining: USDT/BTC Pool')
+        .addFields(
+          {
+            name: 'Asset: USDT',
+            value: `Your Current Share Of Reward Pool*: ${response.data[0].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[0].sovReward}`,
+            inline: true,
+          },
+          {
+            name: 'Asset: BTC',
+            value: `Your Current Share Of Reward Pool*: ${response.data[1].percentage}%\nYour Current Share Of Reward Pool*: ${response.data[1].sovReward}`,
+            inline: true,
+          }
+        );
+    await message.channel.send(exampleEmbed);
+  };
 
 // let puppetFetch = async (message, args) => {
 //     // default browser viewport size

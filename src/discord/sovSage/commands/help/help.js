@@ -10,15 +10,16 @@ module.exports = {
   cooldown: 5,
   execute(message, args) {
     const data = [],
-      { commands } = message.client,
-      name = args[0].toLowerCase(),
-      command =
-        commands.get(name) ||
-        commands.find((c) => c.aliases && c.aliases.includes(name));
+      { commands } = message.client;
 
     if (!args.length) {
       data.push("Here is a list of all the Sage's commands:");
-      data.push(commands.map((command) => command.name).join(', '));
+      data.push(
+        commands
+          .map((command) => command.name)
+          .sort()
+          .join(', ')
+      );
       data.push(
         `\nYou can send \`${config.prefix}help [command name]\` to get info on a specific command!`
       );
@@ -39,6 +40,11 @@ module.exports = {
           );
         });
     }
+
+    let name = args[0].toLowerCase(),
+      command =
+        commands.get(name) ||
+        commands.find((c) => c.aliases && c.aliases.includes(name));
 
     if (!command) {
       return message.reply("that's not a valid command!");
