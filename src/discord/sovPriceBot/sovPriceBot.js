@@ -31,19 +31,19 @@ class DiscordPriceBotCtrl {
     });
 
     bot.on('message', async (message) => {
-        if (!config.monitoredChannels.includes(message.channel.name)) {
-            return;
-        }
+      if (!config.monitoredChannels.includes(message.channel.name)) {
+        return;
+      }
 
-        //   if (message.channel.type == 'dm') {
-    //     const user = await bot.guilds.cache
-    //         .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
-    //         .members.fetch(message.author.id),
-    //       allowedToDm = user.roles.cache.some((r) =>
-    //         config.allowedRoles.includes(r.name.toLowerCase())
-    //       );
-    //     if (!allowedToDm) return;
-    //   }
+      //   if (message.channel.type == 'dm') {
+      //     const user = await bot.guilds.cache
+      //         .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
+      //         .members.fetch(message.author.id),
+      //       allowedToDm = user.roles.cache.some((r) =>
+      //         config.allowedRoles.includes(r.name.toLowerCase())
+      //       );
+      //     if (!allowedToDm) return;
+      //   }
       if (message.content === '$sov') {
         // Convert to sats
         const price = priceData.price * 100000000,

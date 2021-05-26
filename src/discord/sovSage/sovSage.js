@@ -40,11 +40,11 @@ class DiscordSovSage {
     bot.login(DISCORD_SOV_SAGE_BOT_TOKEN);
 
     bot.on('message', async (message) => {
-        if (!config.monitoredChannels.includes(message.channel.name)) {
-            return;
-        }
+      if (!config.monitoredChannels.includes(message.channel.name)) {
+        return;
+      }
 
-        if (!message.content.startsWith(config.prefix) || message.author.bot) {
+      if (!message.content.startsWith(config.prefix) || message.author.bot) {
         return;
       }
 
