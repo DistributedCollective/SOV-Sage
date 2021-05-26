@@ -1,7 +1,5 @@
 import Web3 from 'web3';
-const Discord = require('discord.js'),
-  // const chalk = require("chalk");
-  DISCORD_STATS_CHANNEL = process.env.DISCORD_STATS_CHANNEL;
+const Discord = require('discord.js');
 
 module.exports = {
   name: 'utils',
@@ -45,12 +43,11 @@ module.exports = {
 //     return;
 // }
 
-// sends the DISCORD_STATS_CHANNEL a count of all the channels and connected members
+// sends a count of all the channels and connected members
 // it includes voice channels as well
 async function channels(message) {
   const { client } = message,
     channelList = client.channels.cache.array(),
-    statsChannel = client.channels.cache.get(DISCORD_STATS_CHANNEL),
     // console.log(statsChannel);
 
     channelsEmbed = new Discord.MessageEmbed()
@@ -67,8 +64,8 @@ async function channels(message) {
   channelsEmbed.setDescription(channelsDescription);
 
   // await message.channel.send(channelsEmbed);
-  await statsChannel.send(`${message.author}`);
-  await statsChannel.send(channelsEmbed);
+  await message.channel.send(`${message.author}`);
+  await message.channel.send(channelsEmbed);
 }
 
 // counts the given channel

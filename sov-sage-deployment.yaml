@@ -18,11 +18,6 @@ spec:
             configMapKeyRef:
               name: sov-sage-config
               key: DISCORD_SOV_SAGE_BOT_TOKEN
-        - name: DISCORD_STATS_CHANNEL
-          valueFrom:
-            configMapKeyRef:
-              name: sov-sage-config
-              key: DISCORD_STATS_CHANNEL
         - name: WIKI_API_KEY
           valueFrom:
             configMapKeyRef:

@@ -3,7 +3,7 @@ require('dotenv').config();
 const config = require('config');
 
 module.exports = {
-  name: 'help',
+  name: 'h',
   description: 'List all of my commands or info about a specific command.',
   aliases: ['commands'],
   usage: '[command name]',
@@ -21,15 +21,15 @@ module.exports = {
           .join(', ')
       );
       data.push(
-        `\nYou can send \`${config.prefix}help [command name]\` to get info on a specific command!`
+        `\nYou can send \`${config.prefix}h [command name]\` to get info on a specific command!`
       );
 
-      return message.author
+      return message.channel
         .send(data, { split: true })
-        .then(() => {
-          if (message.channel.type === 'dm') return;
-          message.reply("I've sent you a DM with all my commands!");
-        })
+        // .then(() => {
+        //   if (message.channel.type === 'dm') return;
+        //   message.reply("I've sent you a DM with all my commands!");
+        // })
         .catch((error) => {
           console.error(
             `Could not send help DM to ${message.author.tag}.\n`,

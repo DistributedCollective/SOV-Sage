@@ -9,5 +9,6 @@
         "sovrynWikiGraphqlUrl": "https://wiki.sovryn.app/graphql",
         "sovrynWiki":           "https://wiki.sovryn.app/"
     },
-    "allowedRoles": ["admin", "moderator", "dev", "contributor"]
+    "monitoredChannels": ["sovryn-sage"],
+    "allowedRoles": ["admin", "moderator", "sovryn legion", "wiki team"]
 }

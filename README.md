@@ -24,7 +24,6 @@ SOV Sage bot will join as a user, it can be grouped in the same role as `SOV Pri
 ```
 # SOV Sage
 DISCORD_SOV_SAGE_BOT_TOKEN=
-DISCORD_STATS_CHANNEL=
 # Sovryn Wiki API Key
 WIKI_API_KEY=
 ```
