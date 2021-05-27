@@ -5,9 +5,10 @@ const config = require('config'),
 
 module.exports = {
   name: 'wiki',
-  description: 'Searches wiki.sovryn.app and returns first result',
+  description:
+    'Searches wiki.sovryn.app and returns first result. The optional language parameter defaults to English (en) however if you wanted French you can pass `fr` at the end of your query.',
   args: false,
-  usage: '<search term> [locale]',
+  usage: '<search term> [language]',
   aliases: ['w'],
   // guildOnly: true,
   cooldown: 1,
@@ -31,18 +32,32 @@ module.exports = {
         .setTitle('SOVRYN Wiki')
         .setURL(config.urls.sovrynWiki);
 
-    res = await searchByPath(searchQuery, locale);
-    if (!res.length) res = await searchByQuery(searchQuery, locale);
-    console.log(`locale: ${locale}`);
+    // res = await searchByPath(searchQuery, locale);
+    // if (!res.length)
+    res = await searchByQuery(searchQuery, locale);
+    // console.log(res);
+    // console.log(`locale: ${locale}`);
 
     if (res.length > 0) {
+      res.forEach((element) => {
+        if (element['path'].includes(args[0]))
+          exampleEmbed.addField(
+            element['title'],
+            `https://wiki.sovryn.app/${element['locale']}/${element['path']}`
+          );
+      });
+    }
+
+    if (exampleEmbed.fields.length === 0 && res.length > 0) {
       res.forEach((element) => {
         exampleEmbed.addField(
           element['title'],
           `https://wiki.sovryn.app/${element['locale']}/${element['path']}`
         );
       });
-    } else {
+    }
+
+    if (exampleEmbed.fields.length === 0) {
       exampleEmbed.setDescription(
         'No results, try another term and remember to "quote phrases"'
       );
@@ -84,37 +99,40 @@ async function searchByQuery(searchTerm, locale) {
 		`,
     },
     res = await axiosWikiFetch(graphqlQuery);
+  // console.log(res.data.pages.search);
+
   return res.data.pages.search.results;
 }
 
-async function searchByPath(pathTerm, locale) {
-  const graphqlQuery = {
-      query: `
-        {
-            pages {
-              search(query:"",path:"${pathTerm}",locale:"${locale}") {
-                results {
-                  id
-                  title
-                  description
-                  path
-                  locale
-                }
-              }
-            }
-          }
-          
-        `,
-    },
-    res = await axiosWikiFetch(graphqlQuery);
-  return res.data.pages.search.results;
-}
+// async function searchByPath(pathTerm, locale) {
+//   const graphqlQuery = {
+//       query: `
+//         {
+//             pages {
+//               search(query:"",path:"${pathTerm}",locale:"${locale}") {
+//                 results {
+//                   id
+//                   title
+//                   description
+//                   path
+//                   locale
+//                 }
+//               }
+//             }
+//           }
+
+//         `,
+//     },
+//     res = await axiosWikiFetch(graphqlQuery);
+//   console.log(res);
+//   return res.data.pages.search.results;
+// }
 
 // async function fetchToc(id) {
-//     // TODO: investigate
-//     // fetching TOC is currently broken
-//     const graphqlQuery = {
-//         query: `
+//   // TODO: investigate
+//   // fetching TOC is currently broken
+//   const graphqlQuery = {
+//       query: `
 // 		query {
 // 			pages {
 // 				single (id:${id}) {
@@ -124,11 +142,11 @@ async function searchByPath(pathTerm, locale) {
 // 			}
 // 		}
 // 		`,
-//     };
-//     const res = await axiosTest(graphqlQuery);
-//     // console.log(chalk.blueBright(`table of contents for ${id}`));
-//     // console.log(res);
-//     return res.data;
+//     },
+//     res = await axiosWikiFetch(graphqlQuery);
+//   // console.log(chalk.blueBright(`table of contents for ${id}`));
+//   console.log(res);
+//   return res.data;
 // }
 
 /*
