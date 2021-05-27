@@ -4,6 +4,8 @@
         "sovrynTicker":         "https://testnet.sovryn.app/backend/api/v1/trading-pairs/ticker",
         "sovrynApp":            "https://live.sovryn.app",
         "sovCurrentPrice":      "https://backend.sovryn.app/sov/current-price",
+        "sovCirculatingSupply": "https://backend.sovryn.app/sov/circulating-supply",
+        "sovUsdPrice":          "https://backend.sovryn.app/datafeed/price/SOV:USDT",
         "liquidityMining":      "https://backend.sovryn.app/amm/liquidity-mining/",
         "tvlUrl":               "https://backend.sovryn.app/tvl",
         "sovrynWikiGraphqlUrl": "https://wiki.sovryn.app/graphql",

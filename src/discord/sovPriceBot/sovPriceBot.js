@@ -3,6 +3,7 @@ require('dotenv').config();
 import axios from 'axios';
 const moment = require('moment-timezone');
 const config = require('config'),
+  _ = require('lodash'),
   bot = new Discord.Client(),
   DISCORD_SOV_PRICE_BOT_TOKEN = process.env.DISCORD_SOV_PRICE_BOT_TOKEN,
   // needs to be server channel
@@ -19,7 +20,8 @@ const config = require('config'),
 // const development = process.env.MODE === 'development' ? true : false;
 
 let priceData = {},
-  lastRan;
+  lastRan,
+  iSov = 0;
 class DiscordPriceBotCtrl {
   async init() {
     bot.once('ready', () => {
@@ -62,17 +64,45 @@ class DiscordPriceBotCtrl {
 
     bot.on('ready', async () => {
       const GUILD_ID = DISCORD_SOV_PRICE_BOT_CHANNEL_ID,
-        guild = await bot.guilds.fetch(GUILD_ID);
+        guild = await bot.guilds.fetch(GUILD_ID),
+        sovFormatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+
+          // These options are needed to round to whole numbers if that's what you want.
+          //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+          //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+        }),
+        marketCapFormatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 0,
+          minimumFractionDigits: 0,
+        });
+
       setInterval(async () => {
         try {
           // axios call here
           priceData = await fetchCurrentPrice();
           lastRan = moment.tz('UTC').format('LL LTS');
-          const price = priceData.price * 100000000;
+          const price = priceData.price * 100000000,
+            sovUsdPrice = await getSovUsdPrice(),
+            sovMarketCap = await getSovMarketCap(sovUsdPrice);
           // Update bot nickname with price
-          guild.me.setNickname(`$SOV: ${price.toLocaleString()} sats`);
-          // let marketCap = '123,456,789 USD'; // TODO: can i fetch this?
-          // bot.user.setActivity(`MC: ${marketCap}`, { type: 'WATCHING' }); // Annoyingly discord has to have something in front of your 'activity'
+
+          // rotate sats and usd
+          if (iSov % 3 === 0) {
+            guild.me.setNickname(`$SOV: ${sovFormatter.format(sovUsdPrice)}`);
+            if (iSov === 3) iSov = 0;
+          } else {
+            guild.me.setNickname(`$SOV: ${price.toLocaleString()} sats`);
+          }
+          iSov++;
+
+          bot.user.setActivity(
+            `MC: ${marketCapFormatter.format(sovMarketCap)}`,
+            { type: 'WATCHING' }
+          ); // Annoyingly discord has to have something in front of your 'activity'
         } catch (err) {
           console.log(err);
           // Just show something instead of wrong price
@@ -88,4 +118,24 @@ export default new DiscordPriceBotCtrl();
 async function fetchCurrentPrice() {
   const response = await axios.get(config.urls.sovCurrentPrice);
   return response.data;
+}
+
+async function getSovUsdPrice() {
+  // TODO: how do i create this?
+  const startTime = 1622075400000,
+    // sovUsdPrice can be fed params: ?startTime=1622075400000
+    sovUsdPricing = await axios.get(
+      `${config.urls.sovUsdPrice}?startTime=${startTime}`
+    );
+  // console.log(startTime);
+  return _.last(sovUsdPricing.data.series)['close'];
+}
+
+async function getSovMarketCap(currentPrice) {
+  // circ supply * current price
+  const sovCirculatingSupply = await axios.get(
+      config.urls.sovCirculatingSupply
+    ),
+    marketCap = sovCirculatingSupply.data.circulating_supply * currentPrice;
+  return marketCap;
 }
