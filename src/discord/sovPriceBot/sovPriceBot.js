@@ -2,10 +2,9 @@ const Discord = require('discord.js');
 require('dotenv').config();
 import axios from 'axios';
 import Web3 from 'web3';
-import abiPriceFeed from "../../../config/ABI/abiPriceFeed.json";
+import abiPriceFeed from '../../../config/ABI/abiPriceFeed.json';
 const moment = require('moment-timezone');
 const config = require('config'),
-  _ = require('lodash'),
   bot = new Discord.Client(),
   DISCORD_SOV_PRICE_BOT_TOKEN = process.env.DISCORD_SOV_PRICE_BOT_TOKEN,
   // needs to be server channel
@@ -70,10 +69,6 @@ class DiscordPriceBotCtrl {
         sovFormatter = new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
-
-          // These options are needed to round to whole numbers if that's what you want.
-          //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-          //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
         }),
         marketCapFormatter = new Intl.NumberFormat('en-US', {
           style: 'currency',
@@ -123,25 +118,25 @@ async function fetchCurrentPrice() {
 }
 
 async function getSovUsdPrice(sovPrice) {
-    const mainNetContracts = {
-        BTC_token: "0x542fDA317318eBF1d3DEAf76E0b632741A7e677d",
-        USDT_token: "0xEf213441a85DF4d7acBdAe0Cf78004E1e486BB96",
-        priceFeed: "0x437AC62769f386b2d238409B7f0a7596d36506e4",
-    },
-    web3 = new Web3("https://mainnet.sovryn.app/rpc"),
-    contractPriceFeed = new web3.eth.Contract(abiPriceFeed, mainNetContracts.priceFeed);
-    let price;
-    try {
-        price = await contractPriceFeed.methods.queryRate(
-            Web3.utils.toChecksumAddress(mainNetContracts.BTC_token),
-            Web3.utils.toChecksumAddress(mainNetContracts.USDT_token) 
-            ).call();
-        const btcPrice = parseFloat(Web3.utils.fromWei(price.rate)).toFixed(6);
-        return btcPrice * sovPrice;
-    } catch(e) {
-        console.error(e)
-    }
-    return undefined;
+  const web3 = new Web3(config.urls.mainnetRpc),
+    contractPriceFeed = new web3.eth.Contract(
+      abiPriceFeed,
+      config.mainNetContracts.priceFeed
+    );
+  let price;
+  try {
+    price = await contractPriceFeed.methods
+      .queryRate(
+        Web3.utils.toChecksumAddress(config.mainNetContracts.BTC_token),
+        Web3.utils.toChecksumAddress(config.mainNetContracts.USDT_token)
+      )
+      .call();
+    const btcPrice = parseFloat(Web3.utils.fromWei(price.rate)).toFixed(6);
+    return btcPrice * sovPrice;
+  } catch (e) {
+    console.error(e);
+  }
+  return undefined;
 }
 
 async function getSovMarketCap(currentPrice) {
