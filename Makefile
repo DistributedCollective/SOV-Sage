@@ -1,5 +1,6 @@
 build:
-	docker build --tag sov-sage .
+	export SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
+	docker build --tag sov-sage:latest --tag sov-sage:${SHORT_COMMIT_HASH} .
 tar:
 	docker save sov-sage:latest sov-sage.tar
 run:
