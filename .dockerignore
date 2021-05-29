@@ -8,6 +8,6 @@ README.md
 db/
 docker-entrypoint.sh
 .dockerignore
-.env
+.env*
 Dockerfile
 .gitignore
