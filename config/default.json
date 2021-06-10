@@ -12,7 +12,7 @@
         "sovrynWiki":           "https://wiki.sovryn.app/",
         "mainnetRpc":           "https://mainnet.sovryn.app/rpc"
     },
-    "monitoredChannels": ["sovryn-sage"],
+    "monitoredChannels": ["838854082575728681","846838916760731710"],
     "allowedRoles": ["admin", "moderator", "sovryn legion", "wiki team"],
     "mainNetContracts": {
         "BTC_token": "0x542fDA317318eBF1d3DEAf76E0b632741A7e677d",

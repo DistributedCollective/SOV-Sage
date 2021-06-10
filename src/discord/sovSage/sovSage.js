@@ -40,7 +40,7 @@ class DiscordSovSage {
     bot.login(DISCORD_SOV_SAGE_BOT_TOKEN);
 
     bot.on('message', async (message) => {
-      if (!config.monitoredChannels.includes(message.channel.name)) {
+      if (!config.monitoredChannels.includes(message.channel.id)) {
         return;
       }
 
