@@ -9,3 +9,4 @@ pm2.json
 db
 .env
 .devcontainer/
+database.db

@@ -4,12 +4,14 @@
  */
 
 import SovPriceBot from './discord/sovPriceBot/sovPriceBot';
-import SovSage from './discord/sovSage/sovSage';
+import SovSageCommando from './discord/sovSageCommando/sovSageCommando';
+// import SovSage from './discord/sovSage/sovSage';
 
 class MainCtrl {
   async start() {
     SovPriceBot.init();
-    SovSage.init();
+    // SovSage.init();
+    SovSageCommando.init();
   }
 }
 
