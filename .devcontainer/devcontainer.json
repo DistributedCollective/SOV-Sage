@@ -1,0 +1,14 @@
+{
+    "name": "SOV Mage Dev",
+    "dockerFile": "Dockerfile",
+    "runArgs": ["-u", "node"],
+    "settings": {
+        "workbench.colorTheme": "Solarized Dark",
+        "terminal.integrated.automationShell.linux": "/bin/bash"
+    },
+    "postCreateCommand": "npm install",
+    "extensions": [
+        "esbenp.prettier-vscode",
+        "ryanolsonx.solarized"
+    ]
+}
