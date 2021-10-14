@@ -3,7 +3,8 @@ require('dotenv').config();
 import axios from 'axios';
 import Web3 from 'web3';
 import abiPriceFeed from '../../../config/ABI/abiPriceFeed.json';
-const moment = require('moment-timezone');
+const moment = require('moment-timezone'),
+    schedule = require('node-schedule');
 const config = require('config'),
   bot = new Discord.Client(),
   DISCORD_SOV_PRICE_BOT_TOKEN = process.env.DISCORD_SOV_PRICE_BOT_TOKEN,
@@ -22,7 +23,12 @@ const config = require('config'),
 
 let priceData = {},
   lastRan,
-  iSov = 0;
+  iSov = 0,
+  sovMarketCap = {},
+  lastSovMarketCap = {},
+  sovUsdPrice = {},
+  price = 0.0,
+  lastPrice = 0.0;
 class DiscordPriceBotCtrl {
   async init() {
     bot.once('ready', () => {
@@ -31,36 +37,6 @@ class DiscordPriceBotCtrl {
 
     bot.login(DISCORD_SOV_PRICE_BOT_TOKEN, () => {
       // console.log('price bot logged in')
-    });
-
-    bot.on('message', async (message) => {
-      if (!config.monitoredChannels.includes(message.channel.name)) {
-        return;
-      }
-
-      //   if (message.channel.type == 'dm') {
-      //     const user = await bot.guilds.cache
-      //         .get(DISCORD_SOV_PRICE_BOT_CHANNEL_ID)
-      //         .members.fetch(message.author.id),
-      //       allowedToDm = user.roles.cache.some((r) =>
-      //         config.allowedRoles.includes(r.name.toLowerCase())
-      //       );
-      //     if (!allowedToDm) return;
-      //   }
-      if (message.content === '$sov') {
-        // Convert to sats
-        const price = priceData.price * 100000000,
-          time = moment.tz(priceData.lastUpdated, 'UTC'),
-          exampleEmbed = new Discord.MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle('Sovryn')
-            .setURL(config.urls.sovrynApp)
-            .addField('Sats:', `${price}`)
-            .addField('Updated:', `${time.format('LL LTS')} UTC`)
-            .addField('Last Fetched:', `${lastRan} UTC`);
-
-        await message.channel.send(exampleEmbed);
-      }
     });
 
     bot.on('ready', async () => {
@@ -77,35 +53,63 @@ class DiscordPriceBotCtrl {
           minimumFractionDigits: 0,
         });
 
-      setInterval(async () => {
-        try {
-          // axios call here
-          priceData = await fetchCurrentPrice();
-          lastRan = moment.tz('UTC').format('LL LTS');
-          const price = priceData.price * 100000000,
-            sovUsdPrice = await getSovUsdPrice(priceData.price),
-            sovMarketCap = await getSovMarketCap(sovUsdPrice);
-          // Update bot nickname with price
+        priceData = await fetchCurrentPrice();
 
-          // rotate sats and usd
-          if (iSov % 3 === 0) {
-            guild.me.setNickname(`$SOV: ${sovFormatter.format(sovUsdPrice)}`);
-            if (iSov === 3) iSov = 0;
-          } else {
-            guild.me.setNickname(`$SOV: ${price.toLocaleString()} sats`);
-          }
-          iSov++;
+        const jobUpdateDiscord = schedule.scheduleJob('*/10 * * * * *', async function(){
+            if (!guild.me.hasPermission('MANAGE_NICKNAMES')) {
+                return console.log('I don\'t have permission to change nickname!');
+            }
 
-          bot.user.setActivity(
-            `MC: ${marketCapFormatter.format(sovMarketCap)}`,
-            { type: 'WATCHING' }
-          ); // Annoyingly discord has to have something in front of your 'activity'
-        } catch (err) {
-          console.log(err);
-          // Just show something instead of wrong price
-          guild.me.setNickname('$SOV: Error Fetching');
-        }
-      }, TICKER_SPEED);
+            price = priceData.price * 100000000;
+
+            if (price != lastPrice) {
+                let nickname = `$SOV: ${price.toLocaleString()} sats`;
+                let res = await guild.me.setNickname(nickname).catch(console.log);
+                // console.log(res);
+                lastPrice = price;
+                // console.log('price has changed, updating');
+            }
+            
+            // console.log(sovMarketCap);
+            // console.log(lastSovMarketCap);
+            if (sovMarketCap != lastSovMarketCap) {
+                // console.log('Updating SOV Market Cap');
+                await bot.user.setActivity(
+                    `MC: ${marketCapFormatter.format(sovMarketCap)}`,
+                    { type: 'WATCHING' }
+                ); // Annoyingly discord has to have something in front of your 'activity'
+                lastSovMarketCap = sovMarketCap;
+            }
+
+            // try {
+            //     // axios call here
+            //     // Update bot nickname with price
+            //     const price = priceData.price * 100000000;
+      
+            //     // rotate sats and usd
+            //     if (iSov % 3 === 0) {
+            //         console.log('here');
+            //       let res1 = await guild.me.setNickname(`$SOV: ${sovFormatter.format(sovUsdPrice)}`);
+            //       console.log(res1);
+            //       if (iSov === 3) iSov = 0;
+            //     } else {
+            //         console.log('there');
+            //         let res2 = guild.me.setNickname(`$SOV: ${price.toLocaleString()} sats`);
+            //         console.log(res2);
+            //     }
+            //     iSov++;
+      
+            //     bot.user.setActivity(
+            //       `MC: ${marketCapFormatter.format(sovMarketCap)}`,
+            //       { type: 'WATCHING' }
+            //     ); // Annoyingly discord has to have something in front of your 'activity'
+            //   } catch (err) {
+            //     console.log(err);
+            //     // Just show something instead of wrong price
+            //     guild.me.setNickname('$SOV: Error Fetching');
+            //   }
+        });
+
     });
   }
 }
@@ -134,7 +138,7 @@ async function getSovUsdPrice(sovPrice) {
     const btcPrice = parseFloat(Web3.utils.fromWei(price.rate)).toFixed(6);
     return btcPrice * sovPrice;
   } catch (e) {
-    console.error(e);
+    console.log(e);
   }
   return undefined;
 }
@@ -147,3 +151,18 @@ async function getSovMarketCap(currentPrice) {
     marketCap = sovCirculatingSupply.data.circulating_supply * currentPrice;
   return marketCap;
 }
+
+const job = schedule.scheduleJob('*/10 * * * * *', async function(){
+    priceData = await fetchCurrentPrice();
+    // console.log(priceData);
+});
+
+const job2 = schedule.scheduleJob('*/10 * * * * *', async function(){
+    sovMarketCap = await getSovMarketCap(sovUsdPrice);
+    // console.log(sovMarketCap);
+});
+
+const job3 = schedule.scheduleJob('*/10 * * * * *', async function(){
+    sovUsdPrice = await getSovUsdPrice(priceData.price);
+    // console.log(sovUsdPrice);
+});
