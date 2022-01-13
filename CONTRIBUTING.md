@@ -30,7 +30,8 @@ Tools you'll need to get this running:
 [docker](https://docs.docker.com/get-docker/) if your interested in building it into an image.
 
 ```bash
-git clone https://github.com/sov-mage/sov-mage.git
+
+git clone https://github.com/DistributedCollective/SOV-Sage.git
 cd sov-sage
 npm install -g grunt-cli
 npm install
